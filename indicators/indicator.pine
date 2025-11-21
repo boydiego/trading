@@ -1,0 +1,56 @@
+//@version=6
+indicator("MACD Dual", shorttitle="MACD Dual", overlay=false)
+
+// ============ PRIMARY MACD INPUTS ============
+timeframe1 = input.timeframe("", title="Timeframe", group="Primary MACD")
+fastLength = input.int(60, title="Fast Length", minval=1, group="Primary MACD")
+slowLength = input.int(130, title="Slow Length", minval=1, group="Primary MACD")
+src = input.source(close, title="Source", group="Primary MACD")
+signalSmoothing = input.int(45, title="Signal Smoothing", minval=1, group="Primary MACD")
+oscillatorMAType = input.string("EMA", title="Oscillator MA Type", options=["EMA", "SMA"], group="Primary MACD")
+signalLineMAType = input.string("EMA", title="Signal Line MA Type", options=["EMA", "SMA"], group="Primary MACD")
+
+// ============ SECONDARY MACD INPUTS ============
+timeframe2 = input.timeframe("240", title="Timeframe", group="Secondary MACD")
+fastLength2 = input.int(12, title="Fast Length", minval=1, group="Secondary MACD")
+slowLength2 = input.int(26, title="Slow Length", minval=1, group="Secondary MACD")
+src2 = input.source(close, title="Source", group="Secondary MACD")
+signalSmoothing2 = input.int(9, title="Signal Smoothing", minval=1, group="Secondary MACD")
+oscillatorMAType2 = input.string("EMA", title="Oscillator MA Type", options=["EMA", "SMA"], group="Secondary MACD")
+signalLineMAType2 = input.string("EMA", title="Signal Line MA Type", options=["EMA", "SMA"], group="Secondary MACD")
+
+// ============ CALCULATION ============
+// Primary MACD
+[fastMA, slowMA, srcData] = request.security(syminfo.tickerid, timeframe1, [oscillatorMAType == "EMA" ? ta.ema(src, fastLength) : ta.sma(src, fastLength), oscillatorMAType == "EMA" ? ta.ema(src, slowLength) : ta.sma(src, slowLength), src])
+
+// Calculate MACD line
+macdLine = fastMA - slowMA
+
+// Calculate Signal line
+signalLine = signalLineMAType == "EMA" ? ta.ema(macdLine, signalSmoothing) : ta.sma(macdLine, signalSmoothing)
+
+// Calculate Histogram
+histogram = macdLine - signalLine
+
+// Secondary MACD
+[fastMA2, slowMA2, srcData2] = request.security(syminfo.tickerid, timeframe2, [oscillatorMAType2 == "EMA" ? ta.ema(src2, fastLength2) : ta.sma(src2, fastLength2), oscillatorMAType2 == "EMA" ? ta.ema(src2, slowLength2) : ta.sma(src2, slowLength2), src2])
+
+// Calculate Secondary MACD line
+macdLine2 = fastMA2 - slowMA2
+
+// ============ PLOTTING ============
+// Primary MACD - Histogram with colors
+plot(histogram, title="Histogram", style=plot.style_histogram, 
+     color=histogram >= 0 ? (histogram[1] < histogram ? #00bcd4 : #ff5252) : (histogram[1] < histogram ? #00bcd4 : #ff5252))
+
+// Primary MACD line
+plot(macdLine, title="MACD", color=#2962ff, linewidth=2)
+
+// Secondary MACD line
+plot(macdLine2, title="MACD 2", color=#00bcd4, linewidth=2)
+
+// Signal line (optional - deaktiviert in den Settings)
+// plot(signalLine, title="Signal", color=#ff6d00, linewidth=2)
+
+// Zero line
+hline(0, title="Zero Line", color=color.gray, linestyle=hline.style_solid)
