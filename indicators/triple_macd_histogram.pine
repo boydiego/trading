@@ -1,0 +1,85 @@
+//@version=6
+indicator("MACD Triple Histogram", shorttitle="MACDx3H", overlay=false)
+
+// ============ PRIMARY MACD INPUTS ============
+timeframe1 = input.timeframe("", title="Timeframe", group="Primary MACD")
+fastLength = input.int(60, title="Fast Length", minval=1, group="Primary MACD")
+slowLength = input.int(130, title="Slow Length", minval=1, group="Primary MACD")
+src = input.source(close, title="Source", group="Primary MACD")
+signalSmoothing = input.int(45, title="Signal Smoothing", minval=1, group="Primary MACD")
+oscillatorMAType = input.string("EMA", title="Oscillator MA Type", options=["EMA", "SMA"], group="Primary MACD")
+signalLineMAType = input.string("EMA", title="Signal Line MA Type", options=["EMA", "SMA"], group="Primary MACD")
+
+// ============ SECONDARY MACD INPUTS ============
+timeframe2 = input.timeframe("240", title="Timeframe", group="Secondary MACD")
+fastLength2 = input.int(12, title="Fast Length", minval=1, group="Secondary MACD")
+slowLength2 = input.int(26, title="Slow Length", minval=1, group="Secondary MACD")
+src2 = input.source(close, title="Source", group="Secondary MACD")
+signalSmoothing2 = input.int(9, title="Signal Smoothing", minval=1, group="Secondary MACD")
+oscillatorMAType2 = input.string("EMA", title="Oscillator MA Type", options=["EMA", "SMA"], group="Secondary MACD")
+signalLineMAType2 = input.string("EMA", title="Signal Line MA Type", options=["EMA", "SMA"], group="Secondary MACD")
+
+// ============ TERTIARY MACD INPUTS ============
+timeframe3 = input.timeframe("1D", title="Timeframe", group="Tertiary MACD")
+fastLength3 = input.int(12, title="Fast Length", minval=1, group="Tertiary MACD")
+slowLength3 = input.int(26, title="Slow Length", minval=1, group="Tertiary MACD")
+src3 = input.source(close, title="Source", group="Tertiary MACD")
+signalSmoothing3 = input.int(9, title="Signal Smoothing", minval=1, group="Tertiary MACD")
+oscillatorMAType3 = input.string("EMA", title="Oscillator MA Type", options=["EMA", "SMA"], group="Tertiary MACD")
+signalLineMAType3 = input.string("EMA", title="Signal Line MA Type", options=["EMA", "SMA"], group="Tertiary MACD")
+
+// ============ CALCULATION ============
+// Primary MACD
+[fastMA, slowMA, srcData] = request.security(syminfo.tickerid, timeframe1, [oscillatorMAType == "EMA" ? ta.ema(src, fastLength) : ta.sma(src, fastLength), oscillatorMAType == "EMA" ? ta.ema(src, slowLength) : ta.sma(src, slowLength), src])
+
+// Calculate MACD line
+macdLine = fastMA - slowMA
+
+// Calculate Signal line
+signalLine = signalLineMAType == "EMA" ? ta.ema(macdLine, signalSmoothing) : ta.sma(macdLine, signalSmoothing)
+
+// Calculate Histogram
+histogram = macdLine - signalLine
+
+// Secondary MACD
+[fastMA2, slowMA2, srcData2] = request.security(syminfo.tickerid, timeframe2, [oscillatorMAType2 == "EMA" ? ta.ema(src2, fastLength2) : ta.sma(src2, fastLength2), oscillatorMAType2 == "EMA" ? ta.ema(src2, slowLength2) : ta.sma(src2, slowLength2), src2])
+
+// Calculate Secondary MACD line
+macdLine2 = fastMA2 - slowMA2
+
+// Calculate Secondary Signal line
+signalLine2 = signalLineMAType2 == "EMA" ? ta.ema(macdLine2, signalSmoothing2) : ta.sma(macdLine2, signalSmoothing2)
+
+// Calculate Secondary Histogram
+histogram2 = macdLine2 - signalLine2
+
+// Tertiary MACD
+[fastMA3, slowMA3, srcData3] = request.security(syminfo.tickerid, timeframe3, [oscillatorMAType3 == "EMA" ? ta.ema(src3, fastLength3) : ta.sma(src3, fastLength3), oscillatorMAType3 == "EMA" ? ta.ema(src3, slowLength3) : ta.sma(src3, slowLength3), src3])
+
+// Calculate Tertiary MACD line
+macdLine3 = fastMA3 - slowMA3
+
+// Calculate Tertiary Signal line
+signalLine3 = signalLineMAType3 == "EMA" ? ta.ema(macdLine3, signalSmoothing3) : ta.sma(macdLine3, signalSmoothing3)
+
+// Calculate Tertiary Histogram
+histogram3 = macdLine3 - signalLine3
+
+// ============ PLOTTING ============
+// Primary MACD - Histogram with colors
+plot(histogram, title="Histogram 1", style=plot.style_histogram, 
+     color=histogram >= 0 ? (histogram[1] < histogram ? #00bcd4 : #ff5252) : (histogram[1] < histogram ? #00bcd4 : #ff5252), 
+     linewidth=2)
+
+// Secondary MACD - Histogram with colors
+plot(histogram2, title="Histogram 2", style=plot.style_histogram, 
+     color=histogram2 >= 0 ? (histogram2[1] < histogram2 ? #26a69a : #ff6f00) : (histogram2[1] < histogram2 ? #26a69a : #ff6f00),
+     linewidth=1)
+
+// Tertiary MACD - Histogram with colors
+plot(histogram3, title="Histogram 3", style=plot.style_histogram, 
+     color=histogram3 >= 0 ? (histogram3[1] < histogram3 ? #9c27b0 : #ffd600) : (histogram3[1] < histogram3 ? #9c27b0 : #ffd600),
+     linewidth=1, histbase=0)
+
+// Zero line
+hline(0, title="Zero Line", color=color.gray, linestyle=hline.style_solid)
