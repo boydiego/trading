@@ -1,15 +1,11 @@
-# Trading Project
+# Trading Journal
 
-A comprehensive trading analysis and journaling project combining TradingView technical indicators with a performance tracking dashboard.
+A professional trading journal dashboard for tracking and analyzing your trading performance on Scalable Capital.
 
 ## 📁 Project Structure
 
 ```
 trading/
-├── indicators/              # TradingView Pine Script indicators
-│   ├── indicator.pine       # MACD Dual indicator
-│   ├── strategy.pine        # MACD Dual + KAMA strategy
-│   └── triple_macd_histogram.pine  # Triple MACD histogram indicator
 ├── strategies/              # Strategy template documentation (JSON files)
 │   └── .gitkeep
 ├── trading-journal.html     # Trading journal dashboard (standalone)
@@ -20,29 +16,13 @@ trading/
 
 ### Trading Workflow
 
-1. **Technical Analysis** - Use TradingView with custom Pine Script indicators for market analysis
-2. **Trade Execution** - Execute trades on Scalable Capital based on strategy signals
+1. **Technical Analysis** - Analyze markets using TradingView or your preferred charting platform
+2. **Trade Execution** - Execute trades on Scalable Capital based on your strategy signals
 3. **Performance Tracking** - Log and analyze trades using the Trading Journal Dashboard
 
-### Components
+### Trading Journal Dashboard
 
-#### 1. TradingView Indicators (`indicators/`)
-
-Custom Pine Script indicators for technical analysis:
-
-- **MACD Dual + KAMA Strategy** - Complete trading strategy with entry/exit signals
-  - Primary MACD (60/130/45) for trend confirmation
-  - Secondary MACD (12/26/9) on 4H timeframe
-  - KAMA baseline as trend filter
-  - ATR-based stop loss management
-
-- **MACD Dual Indicator** - Multi-timeframe MACD visualization
-
-- **Triple MACD Histogram** - Three-level MACD analysis across different timeframes
-
-#### 2. Trading Journal Dashboard (`trading-journal.html`)
-
-A self-contained, browser-based dashboard for tracking and analyzing your trading performance.
+A self-contained, browser-based dashboard for tracking and analyzing your trading performance. No installation required - just open the HTML file in your browser.
 
 ## 📊 Trading Journal Dashboard
 
@@ -88,21 +68,21 @@ Create strategy template files in the `strategies/` folder:
 
 ```json
 {
-  "name": "MACD Dual + KAMA",
-  "description": "Strategy using dual MACD with KAMA baseline",
+  "name": "Trend Following",
+  "description": "Follow strong trends with momentum confirmation",
   "entry_rules": [
-    "Histogram rising (green)",
-    "Secondary MACD above zero",
-    "Price above KAMA baseline"
+    "Price above 50 EMA",
+    "RSI > 50",
+    "Volume confirmation"
   ],
   "exit_rules": [
-    "Price falls below KAMA",
-    "Secondary MACD falls below zero",
+    "Price crosses below 20 EMA",
+    "RSI < 40",
     "Stop loss triggered"
   ],
   "risk_management": {
     "stop_loss_type": "ATR-based",
-    "atr_multiplier": 3.0,
+    "atr_multiplier": 2.0,
     "position_sizing": "1% account risk per trade"
   }
 }
@@ -264,18 +244,6 @@ All data is stored locally in your browser using localStorage:
 
 ## 🔧 Development
 
-### TradingView Indicators
-
-The Pine Script indicators are designed for TradingView. To use them:
-
-1. Open TradingView
-2. Open Pine Editor (bottom of screen)
-3. Copy the indicator code from the `indicators/` folder
-4. Paste into Pine Editor
-5. Click "Add to Chart"
-
-### Trading Journal
-
 The trading journal is a single HTML file with embedded CSS and JavaScript:
 - **No build process** required
 - **No dependencies** needed
@@ -293,9 +261,8 @@ This project is for personal use in trading analysis and performance tracking.
 
 ## 🙏 Acknowledgments
 
-- TradingView for the excellent charting platform
-- Pine Script for custom indicator capabilities
-- Scalable Capital for trade execution
+- Scalable Capital for trade execution platform
+- Modern web technologies for offline-capable applications
 
 ---
 
