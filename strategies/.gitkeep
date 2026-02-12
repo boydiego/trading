@@ -1,0 +1,13 @@
+# This folder contains strategy template JSON files for organizing trading setups.
+#
+# Example strategy template:
+# {
+#   "name": "MACD Dual + KAMA",
+#   "description": "Strategy using dual MACD with KAMA baseline",
+#   "entry_rules": ["Histogram rising", "Secondary MACD > 0", "Price > KAMA"],
+#   "exit_rules": ["Price < KAMA", "Secondary MACD < 0"],
+#   "risk_management": {
+#     "stop_loss_type": "ATR-based",
+#     "atr_multiplier": 3.0
+#   }
+# }
