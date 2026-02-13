@@ -478,6 +478,118 @@
     }
 
     /* ===================================
+       SYNC STATUS (BEM)
+       =================================== */
+    .sync-status {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      background-color: var(--color-surface);
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
+
+    .sync-status__icon {
+      font-size: var(--font-size-lg);
+      animation: none;
+    }
+
+    .sync-status--syncing .sync-status__icon {
+      animation: rotate 1s linear infinite;
+      color: var(--color-info);
+    }
+
+    .sync-status--synced {
+      color: var(--color-success);
+    }
+
+    .sync-status--error {
+      color: var(--color-danger);
+    }
+
+    @keyframes rotate {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ===================================
+       MODAL (BEM)
+       =================================== */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      padding: var(--spacing-md);
+    }
+
+    .modal__content {
+      background-color: var(--color-surface);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-lg);
+      max-width: 600px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-lg);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .modal__header h2 {
+      font-size: var(--font-size-xl);
+      color: var(--color-text-primary);
+    }
+
+    .modal__close {
+      background: none;
+      border: none;
+      font-size: 2rem;
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      padding: 0;
+      width: 2rem;
+      height: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color var(--transition-base);
+    }
+
+    .modal__close:hover {
+      color: var(--color-text-primary);
+    }
+
+    .modal__body {
+      padding: var(--spacing-lg);
+    }
+
+    .modal__footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-lg);
+      border-top: 1px solid var(--color-border);
+    }
+
+    /* ===================================
        EMPTY STATE (BEM)
        =================================== */
     .empty-state {
@@ -579,8 +691,16 @@
 
   <!-- HEADER -->
   <header class="header">
-    <h1 class="header__title">📊 Trading Journal</h1>
+    <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+      <h1 class="header__title">📊 Trading Journal</h1>
+      <div id="syncStatus" class="sync-status" style="display: none;">
+        <span class="sync-status__icon">⟳</span>
+        <span class="sync-status__text">Synced</span>
+      </div>
+    </div>
     <div class="header__actions">
+      <button class="btn btn--info btn--small" id="githubSetupBtn" style="display: none;">⚙️ Setup GitHub Sync</button>
+      <button class="btn btn--secondary btn--small" id="manualSyncBtn" style="display: none;">🔄 Sync Now</button>
       <button class="btn btn--secondary" id="exportCsvBtn">Export CSV</button>
       <button class="btn btn--secondary" id="exportJsonBtn">Export JSON</button>
       <button class="btn btn--secondary" id="importJsonBtn">Import Trades</button>
@@ -728,6 +848,60 @@
   <input type="file" id="jsonFileInput" accept=".json" style="display: none;">
   <input type="file" id="strategyFileInput" accept=".json" multiple style="display: none;">
 
+  <!-- GitHub Setup Modal -->
+  <div id="githubSetupModal" class="modal" style="display: none;">
+    <div class="modal__content">
+      <div class="modal__header">
+        <h2>🔗 GitHub Sync Setup</h2>
+        <button class="modal__close" id="closeGithubModal">&times;</button>
+      </div>
+      <div class="modal__body">
+        <p style="margin-bottom: var(--spacing-md); color: var(--color-text-secondary);">
+          Enable automatic sync across all your devices using GitHub Gist.
+        </p>
+
+        <div class="form-group">
+          <label class="form-group__label">Step 1: Create GitHub Personal Access Token</label>
+          <ol style="color: var(--color-text-secondary); font-size: var(--font-size-sm); line-height: 1.8; margin: var(--spacing-sm) 0 var(--spacing-md) var(--spacing-md);">
+            <li>Go to <a href="https://github.com/settings/tokens/new" target="_blank" style="color: var(--color-info);">GitHub Token Settings</a></li>
+            <li>Set <strong>Note</strong>: "Trading Journal Sync"</li>
+            <li>Set <strong>Expiration</strong>: No expiration (or your preference)</li>
+            <li>Select scope: <strong>✓ gist</strong> (only this permission needed)</li>
+            <li>Click <strong>"Generate token"</strong></li>
+            <li>Copy the token (you won't be able to see it again!)</li>
+          </ol>
+        </div>
+
+        <div class="form-group">
+          <label class="form-group__label" for="githubTokenInput">Step 2: Paste Your Token Here</label>
+          <input
+            type="password"
+            id="githubTokenInput"
+            class="form-group__input"
+            placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+          />
+          <small style="color: var(--color-text-tertiary); font-size: var(--font-size-sm);">
+            Your token is stored securely in your browser and never shared.
+          </small>
+        </div>
+
+        <div id="githubSetupError" class="form-group" style="display: none;">
+          <p style="color: var(--color-danger); font-size: var(--font-size-sm);"></p>
+        </div>
+
+        <div id="githubSetupSuccess" class="form-group" style="display: none;">
+          <p style="color: var(--color-success); font-size: var(--font-size-sm);">
+            ✓ GitHub sync configured successfully! Your trades will now sync automatically across all devices.
+          </p>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--secondary" id="cancelGithubSetup">Cancel</button>
+        <button class="btn btn--primary" id="saveGithubToken">Save & Enable Sync</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     /* ===================================
        CONFIGURATION
@@ -736,11 +910,19 @@
       STORAGE_KEY: 'tradingJournal_trades',
       STRATEGIES_KEY: 'tradingJournal_strategies',
       SETTINGS_KEY: 'tradingJournal_settings',
+      GITHUB_TOKEN_KEY: 'tradingJournal_githubToken',
+      GITHUB_GIST_KEY: 'tradingJournal_gistId',
       VERSION: '1.0.0',
       TRADES_PER_PAGE: 20,
       DEFAULT_CURRENCY: 'EUR',
       DATE_FORMAT: 'DD/MM/YYYY',
-      DEFAULT_STRATEGIES: ['Custom']
+      DEFAULT_STRATEGIES: ['Custom'],
+      GITHUB: {
+        GIST_FILENAME: 'trading-journal-data.json',
+        GIST_DESCRIPTION: 'Trading Journal Data - Auto-synced',
+        AUTO_SYNC_INTERVAL: 30000, // 30 seconds
+        API_BASE_URL: 'https://api.github.com'
+      }
     };
 
     /* ===================================
@@ -750,6 +932,319 @@
     let editingTradeId = null;
     let sortColumn = 'date';
     let sortDirection = 'desc';
+    let syncInProgress = false;
+    let autoSyncInterval = null;
+
+    /* ===================================
+       GITHUB SYNC SERVICE
+       =================================== */
+    const GitHubSync = {
+      /**
+       * Check if GitHub sync is enabled
+       */
+      isEnabled() {
+        const token = localStorage.getItem(CONFIG.GITHUB_TOKEN_KEY);
+        return token !== null && token !== '';
+      },
+
+      /**
+       * Get stored GitHub token
+       */
+      getToken() {
+        return localStorage.getItem(CONFIG.GITHUB_TOKEN_KEY);
+      },
+
+      /**
+       * Get stored Gist ID
+       */
+      getGistId() {
+        return localStorage.getItem(CONFIG.GITHUB_GIST_KEY);
+      },
+
+      /**
+       * Save GitHub token
+       */
+      saveToken(token) {
+        localStorage.setItem(CONFIG.GITHUB_TOKEN_KEY, token);
+      },
+
+      /**
+       * Save Gist ID
+       */
+      saveGistId(gistId) {
+        localStorage.setItem(CONFIG.GITHUB_GIST_KEY, gistId);
+      },
+
+      /**
+       * Remove GitHub credentials
+       */
+      clearCredentials() {
+        localStorage.removeItem(CONFIG.GITHUB_TOKEN_KEY);
+        localStorage.removeItem(CONFIG.GITHUB_GIST_KEY);
+      },
+
+      /**
+       * Update sync status UI
+       */
+      updateSyncStatus(status, message) {
+        const syncStatus = document.getElementById('syncStatus');
+        const syncText = syncStatus.querySelector('.sync-status__text');
+
+        syncStatus.classList.remove('sync-status--syncing', 'sync-status--synced', 'sync-status--error');
+
+        if (status === 'syncing') {
+          syncStatus.classList.add('sync-status--syncing');
+          syncText.textContent = message || 'Syncing...';
+        } else if (status === 'synced') {
+          syncStatus.classList.add('sync-status--synced');
+          syncText.textContent = message || 'Synced';
+        } else if (status === 'error') {
+          syncStatus.classList.add('sync-status--error');
+          syncText.textContent = message || 'Sync Error';
+        }
+      },
+
+      /**
+       * Create a new private Gist
+       */
+      async createGist(data) {
+        const token = this.getToken();
+        if (!token) throw new Error('No GitHub token configured');
+
+        const response = await fetch(`${CONFIG.GITHUB.API_BASE_URL}/gists`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `token ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/vnd.github.v3+json'
+          },
+          body: JSON.stringify({
+            description: CONFIG.GITHUB.GIST_DESCRIPTION,
+            public: false,
+            files: {
+              [CONFIG.GITHUB.GIST_FILENAME]: {
+                content: JSON.stringify(data, null, 2)
+              }
+            }
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to create Gist');
+        }
+
+        const gist = await response.json();
+        this.saveGistId(gist.id);
+        return gist;
+      },
+
+      /**
+       * Update existing Gist
+       */
+      async updateGist(data) {
+        const token = this.getToken();
+        const gistId = this.getGistId();
+
+        if (!token) throw new Error('No GitHub token configured');
+        if (!gistId) throw new Error('No Gist ID found');
+
+        const response = await fetch(`${CONFIG.GITHUB.API_BASE_URL}/gists/${gistId}`, {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `token ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/vnd.github.v3+json'
+          },
+          body: JSON.stringify({
+            files: {
+              [CONFIG.GITHUB.GIST_FILENAME]: {
+                content: JSON.stringify(data, null, 2)
+              }
+            }
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to update Gist');
+        }
+
+        return await response.json();
+      },
+
+      /**
+       * Get data from Gist
+       */
+      async getGistData() {
+        const token = this.getToken();
+        const gistId = this.getGistId();
+
+        if (!token) throw new Error('No GitHub token configured');
+        if (!gistId) return null;
+
+        const response = await fetch(`${CONFIG.GITHUB.API_BASE_URL}/gists/${gistId}`, {
+          headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            // Gist doesn't exist anymore, clear the ID
+            localStorage.removeItem(CONFIG.GITHUB_GIST_KEY);
+            return null;
+          }
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to fetch Gist');
+        }
+
+        const gist = await response.json();
+        const file = gist.files[CONFIG.GITHUB.GIST_FILENAME];
+
+        if (!file) return null;
+
+        return JSON.parse(file.content);
+      },
+
+      /**
+       * Sync trades to GitHub Gist
+       */
+      async syncToGist(trades, strategies) {
+        if (syncInProgress) {
+          console.log('Sync already in progress, skipping...');
+          return;
+        }
+
+        if (!this.isEnabled()) {
+          console.log('GitHub sync not enabled, skipping...');
+          return;
+        }
+
+        syncInProgress = true;
+        this.updateSyncStatus('syncing', 'Syncing...');
+
+        try {
+          const data = {
+            version: CONFIG.VERSION,
+            lastSync: new Date().toISOString(),
+            trades: trades || [],
+            strategies: strategies || CONFIG.DEFAULT_STRATEGIES
+          };
+
+          const gistId = this.getGistId();
+
+          if (gistId) {
+            // Update existing Gist
+            await this.updateGist(data);
+          } else {
+            // Create new Gist
+            await this.createGist(data);
+          }
+
+          this.updateSyncStatus('synced', 'Synced ✓');
+          console.log('Successfully synced to GitHub Gist');
+
+          // Reset to "Synced" after 3 seconds
+          setTimeout(() => {
+            this.updateSyncStatus('synced', 'Synced');
+          }, 3000);
+
+        } catch (error) {
+          console.error('Failed to sync to GitHub:', error);
+          this.updateSyncStatus('error', 'Sync Failed');
+          UI.showNotification(`Sync failed: ${error.message}`, 'error');
+        } finally {
+          syncInProgress = false;
+        }
+      },
+
+      /**
+       * Load trades from GitHub Gist
+       */
+      async loadFromGist() {
+        if (!this.isEnabled()) {
+          return null;
+        }
+
+        this.updateSyncStatus('syncing', 'Loading...');
+
+        try {
+          const data = await this.getGistData();
+
+          if (data) {
+            this.updateSyncStatus('synced', 'Loaded ✓');
+
+            // Reset to "Synced" after 3 seconds
+            setTimeout(() => {
+              this.updateSyncStatus('synced', 'Synced');
+            }, 3000);
+
+            return data;
+          } else {
+            // No Gist exists yet, this is normal for first-time setup
+            this.updateSyncStatus('synced', 'Ready');
+            return null;
+          }
+        } catch (error) {
+          console.error('Failed to load from GitHub:', error);
+          this.updateSyncStatus('error', 'Load Failed');
+          return null;
+        }
+      },
+
+      /**
+       * Verify GitHub token is valid
+       */
+      async verifyToken(token) {
+        const response = await fetch(`${CONFIG.GITHUB.API_BASE_URL}/user`, {
+          headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Invalid GitHub token');
+        }
+
+        const user = await response.json();
+        return user;
+      },
+
+      /**
+       * Start auto-sync interval
+       */
+      startAutoSync() {
+        if (!this.isEnabled()) return;
+
+        // Clear existing interval
+        if (autoSyncInterval) {
+          clearInterval(autoSyncInterval);
+        }
+
+        // Set up new interval
+        autoSyncInterval = setInterval(async () => {
+          const trades = DataService.getTrades();
+          const strategies = DataService.getStrategies();
+          await this.syncToGist(trades, strategies);
+        }, CONFIG.GITHUB.AUTO_SYNC_INTERVAL);
+
+        console.log('Auto-sync started');
+      },
+
+      /**
+       * Stop auto-sync interval
+       */
+      stopAutoSync() {
+        if (autoSyncInterval) {
+          clearInterval(autoSyncInterval);
+          autoSyncInterval = null;
+          console.log('Auto-sync stopped');
+        }
+      }
+    };
 
     /* ===================================
        UTILITY FUNCTIONS
@@ -807,6 +1302,15 @@
       saveTrades(trades) {
         try {
           localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(trades));
+
+          // Trigger GitHub sync if enabled
+          if (GitHubSync.isEnabled()) {
+            const strategies = this.getStrategies();
+            GitHubSync.syncToGist(trades, strategies).catch(err => {
+              console.error('Background sync failed:', err);
+            });
+          }
+
           return true;
         } catch (error) {
           if (error.name === 'QuotaExceededError') {
@@ -858,6 +1362,15 @@
       saveStrategies(strategies) {
         try {
           localStorage.setItem(CONFIG.STRATEGIES_KEY, JSON.stringify(strategies));
+
+          // Trigger GitHub sync if enabled
+          if (GitHubSync.isEnabled()) {
+            const trades = this.getTrades();
+            GitHubSync.syncToGist(trades, strategies).catch(err => {
+              console.error('Background sync failed:', err);
+            });
+          }
+
           return true;
         } catch (error) {
           console.error('Error saving strategies:', error);
@@ -1535,6 +2048,134 @@
       }
     }
 
+    /* ===================================
+       GITHUB SYNC HANDLERS
+       =================================== */
+
+    // Handle GitHub setup button click
+    function handleGithubSetup() {
+      const modal = document.getElementById('githubSetupModal');
+      const tokenInput = document.getElementById('githubTokenInput');
+      const errorDiv = document.getElementById('githubSetupError');
+      const successDiv = document.getElementById('githubSetupSuccess');
+
+      // Reset modal state
+      tokenInput.value = GitHubSync.getToken() || '';
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+
+      modal.style.display = 'flex';
+    }
+
+    // Handle GitHub setup close
+    function handleCloseGithubModal() {
+      const modal = document.getElementById('githubSetupModal');
+      modal.style.display = 'none';
+    }
+
+    // Handle GitHub token save
+    async function handleSaveGithubToken() {
+      const tokenInput = document.getElementById('githubTokenInput');
+      const errorDiv = document.getElementById('githubSetupError');
+      const successDiv = document.getElementById('githubSetupSuccess');
+      const saveBtn = document.getElementById('saveGithubToken');
+
+      const token = tokenInput.value.trim();
+
+      if (!token) {
+        errorDiv.querySelector('p').textContent = 'Please enter a GitHub token';
+        errorDiv.style.display = 'block';
+        successDiv.style.display = 'none';
+        return;
+      }
+
+      // Disable button while verifying
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Verifying...';
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+
+      try {
+        // Verify token is valid
+        await GitHubSync.verifyToken(token);
+
+        // Save token
+        GitHubSync.saveToken(token);
+
+        // Show success message
+        successDiv.style.display = 'block';
+        errorDiv.style.display = 'none';
+
+        // Initialize sync UI
+        initializeGithubSyncUI();
+
+        // Start auto-sync
+        GitHubSync.startAutoSync();
+
+        // Load data from GitHub
+        const data = await GitHubSync.loadFromGist();
+        if (data && data.trades && data.trades.length > 0) {
+          // Ask user if they want to merge or replace
+          if (confirm(`Found ${data.trades.length} trades in GitHub. Do you want to load them?\n\nOK = Load from GitHub\nCancel = Keep local data`)) {
+            DataService.saveTrades(data.trades);
+            if (data.strategies) {
+              DataService.saveStrategies(data.strategies);
+            }
+            renderDashboard();
+            UI.showNotification('Data loaded from GitHub', 'success');
+          }
+        } else {
+          // No data in GitHub, sync current local data
+          const trades = DataService.getTrades();
+          const strategies = DataService.getStrategies();
+          if (trades.length > 0) {
+            await GitHubSync.syncToGist(trades, strategies);
+            UI.showNotification('Local data synced to GitHub', 'success');
+          }
+        }
+
+        // Close modal after a delay
+        setTimeout(() => {
+          handleCloseGithubModal();
+        }, 2000);
+
+      } catch (error) {
+        console.error('GitHub setup error:', error);
+        errorDiv.querySelector('p').textContent = error.message || 'Failed to verify token. Please check your token and try again.';
+        errorDiv.style.display = 'block';
+        successDiv.style.display = 'none';
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save & Enable Sync';
+      }
+    }
+
+    // Handle manual sync button
+    async function handleManualSync() {
+      const trades = DataService.getTrades();
+      const strategies = DataService.getStrategies();
+      await GitHubSync.syncToGist(trades, strategies);
+      UI.showNotification('Manually synced to GitHub', 'success');
+    }
+
+    // Initialize GitHub sync UI elements
+    function initializeGithubSyncUI() {
+      const syncStatus = document.getElementById('syncStatus');
+      const setupBtn = document.getElementById('githubSetupBtn');
+      const manualSyncBtn = document.getElementById('manualSyncBtn');
+
+      if (GitHubSync.isEnabled()) {
+        syncStatus.style.display = 'flex';
+        setupBtn.style.display = 'none';
+        manualSyncBtn.style.display = 'inline-block';
+        GitHubSync.updateSyncStatus('synced', 'Ready');
+      } else {
+        syncStatus.style.display = 'none';
+        setupBtn.style.display = 'inline-block';
+        manualSyncBtn.style.display = 'none';
+      }
+    }
+
     // Handle sort
     function handleSort(column) {
       if (sortColumn === column) {
@@ -1654,6 +2295,47 @@
         const isCollapsed = formContent.classList.toggle('form-section__content--collapsed');
         toggleIcon.textContent = isCollapsed ? '+' : '−';
       });
+
+      // GitHub Sync event listeners
+      document.getElementById('githubSetupBtn').addEventListener('click', handleGithubSetup);
+      document.getElementById('manualSyncBtn').addEventListener('click', handleManualSync);
+      document.getElementById('closeGithubModal').addEventListener('click', handleCloseGithubModal);
+      document.getElementById('cancelGithubSetup').addEventListener('click', handleCloseGithubModal);
+      document.getElementById('saveGithubToken').addEventListener('click', handleSaveGithubToken);
+
+      // Close modal when clicking outside
+      document.getElementById('githubSetupModal').addEventListener('click', (e) => {
+        if (e.target.id === 'githubSetupModal') {
+          handleCloseGithubModal();
+        }
+      });
+
+      // Initialize GitHub sync UI
+      initializeGithubSyncUI();
+
+      // If GitHub sync is enabled, load data from GitHub and start auto-sync
+      if (GitHubSync.isEnabled()) {
+        GitHubSync.loadFromGist().then(data => {
+          if (data && data.trades) {
+            // Merge GitHub data with local data
+            const localTrades = DataService.getTrades();
+            if (localTrades.length === 0 && data.trades.length > 0) {
+              // No local data, use GitHub data
+              DataService.saveTrades(data.trades);
+              if (data.strategies) {
+                DataService.saveStrategies(data.strategies);
+              }
+              renderDashboard();
+              console.log('Loaded data from GitHub');
+            }
+          }
+        }).catch(err => {
+          console.error('Failed to load from GitHub:', err);
+        });
+
+        // Start auto-sync
+        GitHubSync.startAutoSync();
+      }
 
       // Set today's date as default
       document.getElementById('tradeDate').valueAsDate = new Date();

@@ -2,6 +2,8 @@
 
 A professional trading journal dashboard for tracking and analyzing your trading performance on Scalable Capital.
 
+🌐 **Multi-Device Sync:** Access your trading journal from any device (work laptop, personal laptop, phone) with automatic GitHub Gist synchronization!
+
 ## 📁 Project Structure
 
 ```
@@ -9,6 +11,7 @@ trading/
 ├── strategies/              # Strategy template documentation (JSON files)
 │   └── .gitkeep
 ├── trading-journal.html     # Trading journal dashboard (standalone)
+├── GITHUB_SETUP.md          # GitHub Pages deployment & sync setup guide
 └── README.md
 ```
 
@@ -48,6 +51,13 @@ A self-contained, browser-based dashboard for tracking and analyzing your tradin
 - Import strategy templates from JSON files
 - All data persists in browser localStorage
 
+✅ **Multi-Device Sync** 🆕
+- Automatic sync across all devices using GitHub Gist
+- Works on work laptop, personal laptop, and phone
+- Auto-sync every 30 seconds
+- Offline support with automatic sync when reconnected
+- One-time setup with GitHub Personal Access Token
+
 ✅ **Professional UI**
 - Dark mode theme optimized for trading
 - Responsive design (desktop, tablet, mobile)
@@ -56,11 +66,29 @@ A self-contained, browser-based dashboard for tracking and analyzing your tradin
 
 ### Getting Started
 
-#### 1. Open the Dashboard
+#### Option A: Access via GitHub Pages (Recommended for Multi-Device Use)
+
+🌐 **Access from anywhere:** https://boydiego.github.io/trading/trading-journal.html
+
+**Benefits:**
+- Access from work laptop, personal laptop, and phone
+- No need to download files
+- Always the latest version
+- Automatic GitHub Gist sync keeps all devices in sync
+
+**Setup Required:**
+1. Enable GitHub Pages (one-time, 2 minutes) - see [GITHUB_SETUP.md](GITHUB_SETUP.md)
+2. Configure GitHub sync (one-time per device, 1 minute) - see [GITHUB_SETUP.md](GITHUB_SETUP.md)
+
+📖 **Full deployment guide:** [GITHUB_SETUP.md](GITHUB_SETUP.md)
+
+#### Option B: Open Locally (Single Device)
 
 Simply double-click `trading-journal.html` - it opens in your browser. No installation or setup required!
 
 **Supported Browsers:** Chrome, Firefox, Safari, Edge, Brave
+
+**Note:** This option uses localStorage only (no multi-device sync)
 
 #### 2. Import Your Strategies (Optional)
 
@@ -90,7 +118,28 @@ Create strategy template files in the `strategies/` folder:
 
 Then click **"Import Strategies"** in the dashboard to load them into the strategy dropdown.
 
-#### 3. Add Your First Trade
+#### 3. Setup Multi-Device Sync (Optional but Recommended)
+
+**If you want to sync across multiple devices:**
+
+1. **Create GitHub Personal Access Token** (one-time, 2 minutes)
+   - Go to https://github.com/settings/tokens/new
+   - Note: "Trading Journal Sync"
+   - Expiration: "No expiration" (or 90 days)
+   - Select scope: **✓ gist** (only this permission)
+   - Click "Generate token" and copy it
+
+2. **Configure Sync** (on each device)
+   - Open the dashboard
+   - Click **"⚙️ Setup GitHub Sync"** button
+   - Paste your GitHub token
+   - Click "Save & Enable Sync"
+
+**That's it!** Your trades will now sync automatically across all devices every 30 seconds.
+
+See [GITHUB_SETUP.md](GITHUB_SETUP.md) for detailed instructions.
+
+#### 4. Add Your First Trade
 
 **For Open Positions:**
 - Fill in: Date, Symbol, Direction (Long/Short), Entry Price, Stop Loss, Position Size, Status: **Open**
@@ -101,7 +150,7 @@ Then click **"Import Strategies"** in the dashboard to load them into the strate
 - Set Status to **Closed**
 - P&L and R:R are calculated automatically
 
-#### 4. Track Your Performance
+#### 5. Track Your Performance
 
 - **Metrics Dashboard** - View win rate, total P&L, profit factor, and more
 - **Trade History** - Search, filter, and analyze all your trades
