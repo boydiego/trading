@@ -1,6 +1,6 @@
 # Trading Journal
 
-A professional trading journal dashboard for tracking and analyzing your trading performance on Scalable Capital.
+A professional trading journal dashboard for tracking and analyzing your trading performance.
 
 🌐 **Multi-Device Sync:** Access your trading journal from any device (work laptop, personal laptop, phone) with automatic GitHub Gist synchronization!
 
@@ -20,7 +20,7 @@ trading/
 ### Trading Workflow
 
 1. **Technical Analysis** - Analyze markets using TradingView or your preferred charting platform
-2. **Trade Execution** - Execute trades on Scalable Capital based on your strategy signals
+2. **Trade Execution** - Execute trades on your broker based on your strategy signals
 3. **Performance Tracking** - Log and analyze trades using the Trading Journal Dashboard
 
 ### Trading Journal Dashboard
@@ -310,7 +310,6 @@ This project is for personal use in trading analysis and performance tracking.
 
 ## 🙏 Acknowledgments
 
-- Scalable Capital for trade execution platform
 - Modern web technologies for offline-capable applications
 
 ---
