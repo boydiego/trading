@@ -2205,10 +2205,55 @@
 
     // Handle manual sync button
     async function handleManualSync() {
-      const trades = DataService.getTrades();
-      const strategies = DataService.getStrategies();
-      await GitHubSync.syncToGist(trades, strategies);
-      UI.showNotification('Manually synced to GitHub', 'success');
+      try {
+        // Step 1: Load data from GitHub first
+        const githubData = await GitHubSync.loadFromGist();
+
+        if (githubData && githubData.trades) {
+          // GitHub has data, merge with local
+          const localTrades = DataService.getTrades();
+
+          // If local has no data and GitHub has data, use GitHub data
+          if (localTrades.length === 0 && githubData.trades.length > 0) {
+            DataService.saveTrades(githubData.trades);
+            if (githubData.strategies) {
+              DataService.saveStrategies(githubData.strategies);
+            }
+            renderDashboard();
+            UI.showNotification('Synced from GitHub', 'success');
+            return;
+          }
+
+          // If both have data, prefer GitHub (it's likely the source of truth)
+          if (githubData.trades.length > 0) {
+            const shouldUseGithub = confirm(
+              `GitHub has ${githubData.trades.length} trades, you have ${localTrades.length} locally.\n\n` +
+              `OK = Use GitHub data (recommended)\n` +
+              `Cancel = Upload your local data to GitHub`
+            );
+
+            if (shouldUseGithub) {
+              DataService.saveTrades(githubData.trades);
+              if (githubData.strategies) {
+                DataService.saveStrategies(githubData.strategies);
+              }
+              renderDashboard();
+              UI.showNotification('Synced from GitHub', 'success');
+              return;
+            }
+          }
+        }
+
+        // Step 2: Upload local data to GitHub
+        const trades = DataService.getTrades();
+        const strategies = DataService.getStrategies();
+        await GitHubSync.syncToGist(trades, strategies);
+        UI.showNotification('Synced to GitHub', 'success');
+
+      } catch (error) {
+        console.error('Manual sync error:', error);
+        UI.showNotification(`Sync failed: ${error.message}`, 'error');
+      }
     }
 
     // Initialize GitHub sync UI elements
