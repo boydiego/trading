@@ -857,7 +857,7 @@
       </div>
       <div class="modal__body">
         <p style="margin-bottom: var(--spacing-md); color: var(--color-text-secondary);">
-          Enable automatic sync across all your devices using GitHub Gist.
+          Enable manual sync across all your devices using GitHub Gist. Use the same token on all devices to sync to the same Gist.
         </p>
 
         <div class="form-group">
@@ -891,7 +891,7 @@
 
         <div id="githubSetupSuccess" class="form-group" style="display: none;">
           <p style="color: var(--color-success); font-size: var(--font-size-sm);">
-            ✓ GitHub sync configured successfully! Your trades will now sync automatically across all devices.
+            ✓ GitHub sync configured successfully! Click "🔄 Sync Now" to sync your trades across devices.
           </p>
         </div>
       </div>
@@ -981,6 +981,41 @@
       clearCredentials() {
         localStorage.removeItem(CONFIG.GITHUB_TOKEN_KEY);
         localStorage.removeItem(CONFIG.GITHUB_GIST_KEY);
+      },
+
+      /**
+       * Find existing Gist by searching user's gists
+       */
+      async findExistingGist() {
+        const token = this.getToken();
+        if (!token) throw new Error('No GitHub token configured');
+
+        const response = await fetch(`${CONFIG.GITHUB.API_BASE_URL}/gists`, {
+          headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch gists');
+        }
+
+        const gists = await response.json();
+
+        // Find gist by description or filename
+        const tradingJournalGist = gists.find(gist =>
+          gist.description === CONFIG.GITHUB.GIST_DESCRIPTION ||
+          gist.files[CONFIG.GITHUB.GIST_FILENAME]
+        );
+
+        if (tradingJournalGist) {
+          console.log('Found existing Gist:', tradingJournalGist.id);
+          this.saveGistId(tradingJournalGist.id);
+          return tradingJournalGist.id;
+        }
+
+        return null;
       },
 
       /**
@@ -1133,7 +1168,13 @@
             strategies: strategies || CONFIG.DEFAULT_STRATEGIES
           };
 
-          const gistId = this.getGistId();
+          let gistId = this.getGistId();
+
+          // If no Gist ID stored, try to find existing Gist first
+          if (!gistId) {
+            console.log('No Gist ID found locally, searching for existing Gist...');
+            gistId = await this.findExistingGist();
+          }
 
           if (gistId) {
             // Update existing Gist
@@ -1171,6 +1212,12 @@
         this.updateSyncStatus('syncing', 'Loading...');
 
         try {
+          // If no Gist ID is stored, try to find existing Gist
+          if (!this.getGistId()) {
+            console.log('No Gist ID found locally, searching for existing Gist...');
+            await this.findExistingGist();
+          }
+
           const data = await this.getGistData();
 
           if (data) {
