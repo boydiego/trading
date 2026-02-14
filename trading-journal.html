@@ -919,8 +919,8 @@
       DEFAULT_STRATEGIES: ['Custom'],
       GITHUB: {
         GIST_FILENAME: 'trading-journal-data.json',
-        GIST_DESCRIPTION: 'Trading Journal Data - Auto-synced',
-        AUTO_SYNC_INTERVAL: 30000, // 30 seconds
+        GIST_DESCRIPTION: 'Trading Journal Data - Manual sync',
+        // AUTO_SYNC_INTERVAL: 30000, // Disabled to avoid API rate limits
         API_BASE_URL: 'https://api.github.com'
       }
     };
@@ -1303,13 +1303,13 @@
         try {
           localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(trades));
 
-          // Trigger GitHub sync if enabled
-          if (GitHubSync.isEnabled()) {
-            const strategies = this.getStrategies();
-            GitHubSync.syncToGist(trades, strategies).catch(err => {
-              console.error('Background sync failed:', err);
-            });
-          }
+          // Auto-sync disabled to avoid API rate limits - use manual "Sync Now" button instead
+          // if (GitHubSync.isEnabled()) {
+          //   const strategies = this.getStrategies();
+          //   GitHubSync.syncToGist(trades, strategies).catch(err => {
+          //     console.error('Background sync failed:', err);
+          //   });
+          // }
 
           return true;
         } catch (error) {
@@ -1363,13 +1363,13 @@
         try {
           localStorage.setItem(CONFIG.STRATEGIES_KEY, JSON.stringify(strategies));
 
-          // Trigger GitHub sync if enabled
-          if (GitHubSync.isEnabled()) {
-            const trades = this.getTrades();
-            GitHubSync.syncToGist(trades, strategies).catch(err => {
-              console.error('Background sync failed:', err);
-            });
-          }
+          // Auto-sync disabled to avoid API rate limits - use manual "Sync Now" button instead
+          // if (GitHubSync.isEnabled()) {
+          //   const trades = this.getTrades();
+          //   GitHubSync.syncToGist(trades, strategies).catch(err => {
+          //     console.error('Background sync failed:', err);
+          //   });
+          // }
 
           return true;
         } catch (error) {
@@ -2109,8 +2109,8 @@
         // Initialize sync UI
         initializeGithubSyncUI();
 
-        // Start auto-sync
-        GitHubSync.startAutoSync();
+        // Auto-sync disabled to avoid API rate limits - use manual "Sync Now" button instead
+        // GitHubSync.startAutoSync();
 
         // Load data from GitHub
         const data = await GitHubSync.loadFromGist();
@@ -2333,8 +2333,8 @@
           console.error('Failed to load from GitHub:', err);
         });
 
-        // Start auto-sync
-        GitHubSync.startAutoSync();
+        // Auto-sync disabled to avoid API rate limits - use manual "Sync Now" button instead
+        // GitHubSync.startAutoSync();
       }
 
       // Set today's date as default

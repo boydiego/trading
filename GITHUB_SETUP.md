@@ -53,7 +53,7 @@ https://boydiego.github.io/trading/trading-journal.html
 
 ## 🔑 Create GitHub Personal Access Token
 
-The GitHub token allows the dashboard to automatically sync your trading data across all devices using a private GitHub Gist.
+The GitHub token allows the dashboard to sync your trading data across all devices using a private GitHub Gist. Sync is manual to avoid API rate limits - use the "🔄 Sync Now" button to sync your data.
 
 ### Step 1: Generate Token
 
@@ -87,7 +87,7 @@ The dashboard will:
 - ✅ Verify your token is valid
 - ✅ Create a private GitHub Gist to store your data
 - ✅ Upload your current trades to the Gist
-- ✅ Enable automatic sync (every 30 seconds)
+- ✅ Enable manual sync (use "🔄 Sync Now" button to sync)
 
 ### On Your Other Devices (Personal Laptop, Phone)
 
@@ -98,7 +98,7 @@ The dashboard will:
 
 The dashboard will:
 - ✅ Load your existing trades from GitHub Gist
-- ✅ Enable automatic sync
+- ✅ Enable manual sync (use "🔄 Sync Now" button to sync)
 
 **All your devices are now synced!** 🎉
 
@@ -106,18 +106,20 @@ The dashboard will:
 
 ## 💡 Using the Dashboard
 
-### Automatic Sync
+### Manual Sync
 
-Once configured, the dashboard automatically syncs:
-- ✅ Every **30 seconds** in the background
-- ✅ Immediately when you add, edit, or delete a trade
-- ✅ When you import new strategies
+**IMPORTANT:** Sync is manual to avoid GitHub API rate limits. Your changes are always saved locally in your browser, but to sync across devices, you need to manually click the "🔄 Sync Now" button.
+
+**When to sync:**
+- ✅ After adding, editing, or deleting trades
+- ✅ After importing new strategies
+- ✅ When switching between devices
 
 You'll see the sync status in the header:
 - **⟳ Syncing...** - Currently uploading to GitHub
 - **⟳ Synced ✓** - Successfully synced (shows for 3 seconds)
 - **⟳ Synced** - Idle, ready to sync
-- **⟳ Sync Failed** - Error occurred (check your internet connection)
+- **⟳ Sync Failed** - Error occurred (check your internet connection or API rate limit)
 
 ### Manual Sync
 
@@ -146,20 +148,20 @@ Your trading data is stored in **two places**:
 
 2. **GitHub Gist** (cloud, synced across devices)
    - Private Gist (only you can see it)
-   - Auto-synced every 30 seconds
+   - Manually synced via "🔄 Sync Now" button
    - Accessible from all your devices
 
 ### Sync Flow
 
 **When you add a trade on Work Laptop:**
 1. Trade is saved to localStorage (instant)
-2. Trade is uploaded to GitHub Gist (within 30 seconds)
-3. Personal Laptop and Phone automatically load the new trade
+2. Click "🔄 Sync Now" to upload to GitHub Gist
+3. On Personal Laptop or Phone, click "🔄 Sync Now" to download the latest data
 
 **When you open the dashboard on Personal Laptop:**
 1. Dashboard loads local data from localStorage (instant)
-2. Dashboard checks GitHub Gist for latest data
-3. If GitHub has newer data, it's merged with local data
+2. If GitHub sync is enabled, it loads latest data from Gist automatically on page load
+3. To get the latest changes made on other devices, click "🔄 Sync Now"
 
 ### Conflict Resolution
 
@@ -278,7 +280,7 @@ The dashboard will work like a native app!
 
 ### Sync Settings
 
-- **Auto-sync interval:** Every 30 seconds
+- **Sync mode:** Manual (click "🔄 Sync Now" button to sync)
 - **Storage:** Private GitHub Gist + localStorage
 - **Required permission:** `gist` scope only
 

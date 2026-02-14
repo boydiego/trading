@@ -52,10 +52,10 @@ A self-contained, browser-based dashboard for tracking and analyzing your tradin
 - All data persists in browser localStorage
 
 ✅ **Multi-Device Sync** 🆕
-- Automatic sync across all devices using GitHub Gist
+- Manual sync across all devices using GitHub Gist
 - Works on work laptop, personal laptop, and phone
-- Auto-sync every 30 seconds
-- Offline support with automatic sync when reconnected
+- Click "🔄 Sync Now" button to sync your data
+- Offline support - changes saved locally, sync when online
 - One-time setup with GitHub Personal Access Token
 
 ✅ **Professional UI**
@@ -135,7 +135,7 @@ Then click **"Import Strategies"** in the dashboard to load them into the strate
    - Paste your GitHub token
    - Click "Save & Enable Sync"
 
-**That's it!** Your trades will now sync automatically across all devices every 30 seconds.
+**That's it!** Your trades will now sync across all devices. Click the "🔄 Sync Now" button to sync your data manually whenever you make changes.
 
 See [GITHUB_SETUP.md](GITHUB_SETUP.md) for detailed instructions.
 
