@@ -1101,6 +1101,12 @@
         });
 
         if (!response.ok) {
+          // If Gist was deleted (404), clear the stale ID
+          if (response.status === 404) {
+            console.log('Gist no longer exists, clearing stale ID');
+            localStorage.removeItem(CONFIG.GITHUB_GIST_KEY);
+            throw new Error('Gist was deleted. Click "Sync Now" again to create a new one.');
+          }
           const error = await response.json();
           throw new Error(error.message || 'Failed to update Gist');
         }
